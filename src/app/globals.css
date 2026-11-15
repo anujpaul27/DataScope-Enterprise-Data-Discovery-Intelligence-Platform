@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@import "@heroui/styles"; 
+
+
+.prose pre {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.prose code {
+  word-break: normal;
+}
+
+.prose {
+  width: 100%;
+}
+
+
