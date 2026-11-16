@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/ui/PageHeader";
 import RoleBadge from "@/components/ui/RoleBadge";
+import OverviewStats from "@/features/datasets/components/OverviewStats";
 import ApiStatusCard from "@/features/users/components/ApiStatusCard";
 import { requireUser } from "@/lib/session";
 
@@ -27,11 +28,13 @@ export default async function OverviewPage() {
           </p>
         </div>
 
+        <OverviewStats />
+
         <ApiStatusCard />
 
         <div className="rounded-box border border-base-300 p-5">
           <p className="text-sm font-medium">Start exploring</p>
-          <p className="mt-3 text-sm text-base-content/60">Dataset statistics and quick links arrive with the Dataset Library.</p>
+          <p className="mt-3 text-sm text-base-content/60">The Data Explorer arrives in the next phase.</p>
           <Link href="/dashboard/explorer" className="btn btn-primary btn-sm mt-4">
             Open Data Explorer
           </Link>
