@@ -28,7 +28,8 @@ async function send(path: string, init: RequestInit | undefined, token: string):
 
 /**
  * Calls the Express API with the user's JWT.
- * Phase 4 wraps this same logic inside the RTK Query baseQuery.
+ * Phase 4: the RTK Query baseQuery (lib/api/baseQuery.ts) wraps this function,
+ * so token handling and the one-time 401 retry still live in exactly one place.
  */
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   let res = await send(path, init, await getApiToken());
@@ -53,5 +54,8 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
       body.error?.details,
     );
   }
+
+  // 204 No Content (DELETE endpoints) has no body to parse.
+  if (res.status === 204) return undefined as T;
   return (await res.json()) as T;
 }
