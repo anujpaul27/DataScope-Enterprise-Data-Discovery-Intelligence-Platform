@@ -96,6 +96,7 @@ export const savedViewsApi = baseApi.injectEndpoints({
       },
     ),
   }),
+  
 });
 
 export const {

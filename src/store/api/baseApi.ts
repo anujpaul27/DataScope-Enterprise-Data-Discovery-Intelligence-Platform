@@ -14,7 +14,20 @@ const baseQueryWithRetry = retry(apiBaseQuery, {
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithRetry,
-  tagTypes: ["Me", "Users", "Datasets", "Dataset", "DatasetSummary", "DatasetCategories", "Permissions", "Records", "Record"],
+  tagTypes: [
+    "Me",
+    "Users",
+    "Datasets",
+    "Dataset",
+    "DatasetSummary",
+    "DatasetCategories",
+    "Permissions",
+    "Records",
+    "Record",
+    "SavedViews",
+    "SavedView",
+    "ViewShares",
+  ],
 
   // ---- stale data policy (explained in PHASE-4-GUIDE.md) ----
   keepUnusedDataFor: 120, // seconds a cache entry survives after its last component unmounts
