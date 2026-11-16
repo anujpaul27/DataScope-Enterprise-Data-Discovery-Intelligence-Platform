@@ -1,26 +1,17 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/Component/navbar";
-import ThemeProvider from "@/Component/ThameProvider";
-import { Toaster } from "sonner";
-import Footer from "@/Component/Footer";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
+import ThemeProvider from "@/components/providers/ThemeProvider";
+import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata = {
-  title: 'Dev Community',
-  description: 'This is the best idea share platform '
-}
-
+export const metadata: Metadata = {
+  title: { default: "DataScope", template: "%s | DataScope" },
+  description: "Enterprise data discovery and intelligence platform",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -29,15 +20,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <main>
-          <ThemeProvider>
-            <Navbar />
-            {children}
-            <Footer/>
-          </ThemeProvider>
-        </main>
-        <Toaster  richColors closeButton position="top-right"  />
+      <body className="min-h-full bg-base-100 text-base-content">
+        <ThemeProvider>
+          {children}
+          <Toaster richColors closeButton position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

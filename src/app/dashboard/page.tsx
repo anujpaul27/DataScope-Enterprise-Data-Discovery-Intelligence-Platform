@@ -1,44 +1,42 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import PageHeader from "@/components/ui/PageHeader";
+import RoleBadge from "@/components/ui/RoleBadge";
+import ApiStatusCard from "@/features/users/components/ApiStatusCard";
+import { requireUser } from "@/lib/session";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { Loader } from "lucide-react";
+export const metadata: Metadata = { title: "Overview" };
 
-export default function DashboardRedirectPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const redirectToDashboard = async () => {
-      try {
-        const sessionResponse = await authClient.getSession() as {
-          data?: { session?: { user?: { role?: string } } };
-          error?: unknown;
-        };
-
-        if ("error" in sessionResponse || !sessionResponse.data?.session) {
-          router.push("/login");
-          return;
-        }
-
-        // Determine role - TODO: Get from backend/session
-        const role = (sessionResponse.data.session.user as any)?.role || "user";
-        router.push(`/dashboard/${role}`);
-      } catch (error) {
-        console.error("Error redirecting:", error);
-        router.push("/login");
-      }
-    };
-
-    redirectToDashboard();
-  }, [router]);
+export default async function OverviewPage() {
+  const user = await requireUser();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-      <div className="text-center">
-        <Loader className="w-12 h-12 animate-spin mx-auto text-blue-600 mb-4" />
-        <p className="text-gray-600 font-semibold">Redirecting to Dashboard...</p>
+    <>
+      <PageHeader title={`Welcome, ${user.name.split(" ")[0]}`} description="Here is where you stand today." />
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="rounded-box border border-base-300 p-5">
+          <p className="text-sm font-medium">Your access</p>
+          <div className="mt-3">
+            <RoleBadge role={user.role} />
+          </div>
+          <p className="mt-3 text-sm text-base-content/60">
+            {user.role === "admin" && "You can manage users, datasets and permissions."}
+            {user.role === "analyst" && "You can explore datasets, build advanced searches and save views."}
+            {user.role === "viewer" && "You can browse datasets you have been given access to."}
+          </p>
+        </div>
+
+        <ApiStatusCard />
+
+        <div className="rounded-box border border-base-300 p-5">
+          <p className="text-sm font-medium">Start exploring</p>
+          <p className="mt-3 text-sm text-base-content/60">Dataset statistics and quick links arrive with the Dataset Library.</p>
+          <Link href="/dashboard/explorer" className="btn btn-primary btn-sm mt-4">
+            Open Data Explorer
+          </Link>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

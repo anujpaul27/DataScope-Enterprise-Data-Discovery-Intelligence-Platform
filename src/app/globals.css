@@ -1,20 +1,32 @@
 @import "tailwindcss";
-@plugin "daisyui";
-@import "@heroui/styles"; 
-
-
-.prose pre {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
 }
 
-.prose code {
-  word-break: normal;
+/* Brand colour: a calm data-tool blue, in both themes. */
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  color-scheme: light;
+  --color-primary: oklch(52% 0.19 258);
+  --color-primary-content: oklch(98% 0.01 258);
+  --color-base-200: oklch(97% 0.005 258);
+  --color-base-300: oklch(93% 0.01 258);
 }
 
-.prose {
-  width: 100%;
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-primary: oklch(70% 0.15 258);
+  --color-primary-content: oklch(18% 0.03 258);
 }
 
+html {
+  scroll-behavior: smooth;
+}
 
+/* Numbers in tables line up nicely. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
