@@ -1,16 +1,18 @@
-import Contributors from "@/Component/Contributors";
-import Hero from "@/Component/Hero";
-import HowItWorks from "@/Component/HowItWork";
-import TrendingIdeasPage from "@/Component/TrendingPage";
+import FeatureGrid from "@/components/landing/FeatureGrid";
+import Hero from "@/components/landing/Hero";
+import LandingNavbar from "@/components/landing/LandingNavbar";
 
-export default function Home() {
-  
+export default function LandingPage() {
   return (
-    <div className="">
-      <Hero/>
-      <TrendingIdeasPage/>
-      <HowItWorks/>
-      <Contributors/>
-    </div>
+    <>
+      <LandingNavbar />
+      <main>
+        <Hero />
+        <FeatureGrid />
+      </main>
+      <footer className="border-t border-base-300 py-6 text-center text-xs text-base-content/50">
+        DataScope - Enterprise Data Discovery &amp; Intelligence Platform
+      </footer>
+    </>
   );
 }
