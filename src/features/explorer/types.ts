@@ -15,6 +15,8 @@ export interface RecordsPage {
   totalCapped: boolean;
   /** Time the server spent on the query (ms). Shown in the table footer. */
   tookMs: number;
+  /** true when the server answered from its result cache (or shared a running query). */
+  cached?: boolean;
 }
 
 export interface ListRecordsArgs {

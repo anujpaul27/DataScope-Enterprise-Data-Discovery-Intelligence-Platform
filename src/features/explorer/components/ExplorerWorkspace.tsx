@@ -51,7 +51,9 @@ export default function ExplorerWorkspace({
   const [input, setInput] = useState(q);
   const debounced = useDebouncedValue(input, 350);
   useEffect(() => {
-    const next = debounced.trim();
+    // The API needs at least 2 characters (one letter would match almost every row).
+    const typed = debounced.trim();
+    const next = typed.length >= 2 ? typed : "";
     if (next !== q) setQuery(next);
     // react only to the debounced text; reacting to `q` too would fight the back button
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -334,7 +336,7 @@ export default function ExplorerWorkspace({
           <p className="text-xs text-base-content/50" aria-live="polite">
             {slow
               ? "Still loading… the connection looks slow."
-              : `Server query: ${shown.tookMs} ms · Shift+click a header to sort by several columns`}
+              : `Server query: ${shown.tookMs} ms${shown.cached ? " (cached)" : ""} · Shift+click a header to sort by several columns`}
           </p>
         </>
       )}

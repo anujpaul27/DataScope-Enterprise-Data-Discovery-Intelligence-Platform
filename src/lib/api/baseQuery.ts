@@ -60,6 +60,8 @@ export const apiBaseQuery: BaseQueryFn<string | ApiRequest, unknown, ApiQueryErr
 
 /** Only network failures and 5xx are worth retrying. 4xx would fail again the same way. */
 export function isRetryable(error: ApiQueryError): boolean {
-  if (error.code === "ABORTED") return false;
+  // ABORTED: we cancelled it. QUERY_TIMEOUT: the database already spent its full time limit,
+  // trying the same heavy query again would only double the load.
+  if (error.code === "ABORTED" || error.code === "QUERY_TIMEOUT") return false;
   return error.status === "NETWORK" || (typeof error.status === "number" && error.status >= 500);
 }
