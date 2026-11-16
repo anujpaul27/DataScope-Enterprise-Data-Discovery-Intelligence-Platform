@@ -1,34 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
-export async function proxy(request:any) {
-  const { pathname } = request.nextUrl;
-
-  // allow public route
-  if (pathname === "/ideas") {
-    return NextResponse.next();
+// First, cheap gate: no session cookie = go to /login.
+// (The REAL check - is the session valid, is the role allowed - happens on the
+// server in app/dashboard/layout.tsx and the Express API. Never rely on this alone.)
+export function proxy(request: NextRequest) {
+  const cookie = getSessionCookie(request, { cookiePrefix: "datascope" });
+  if (!cookie) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("callbackUrl", request.nextUrl.pathname + request.nextUrl.search);
+    return NextResponse.redirect(url);
   }
-
-  // check cookie/session existence only (safe in Edge)
-  const sessionToken =
-    request.cookies.get("__Secure-better-auth.session_token")?.value ||
-    request.cookies.get("better-auth.session_token")?.value;
-
-  // if no session → redirect login
-  if (!sessionToken) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-
-    return NextResponse.redirect(loginUrl);
-  }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/add-idea/:path*",
-    "/my-ideas/:path*",
-    "/my-interactions/:path*",
-    "/ideas/:path*",
-  ],
+  matcher: ["/dashboard/:path*"],
 };

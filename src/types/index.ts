@@ -1,33 +1,41 @@
-export interface Idea {
-  _id: string;
-  title: string;
-  shortDescription: string;
-  category: string;
-  imageUrl: string;
-  estimatedBudget?: string;
-  problemStatement: string;
-  proposedSolution: string;
-  detailedDescription?: string;
-  targetAudience?: string;
-  tags: string[] | string;
-  author_id?: string;
+export const ROLES = ["admin", "analyst", "viewer"] as const;
+export type Role = (typeof ROLES)[number];
+
+export function isRole(value: unknown): value is Role {
+  return typeof value === "string" && (ROLES as readonly string[]).includes(value);
 }
 
-export interface Comment {
-  _id?: string;
-  userID?: string;
-  postID?: string;
+export const ROLE_LABELS: Record<Role, string> = {
+  admin: "Administrator",
+  analyst: "Data Analyst",
+  viewer: "Viewer",
+};
+
+export interface AppUser {
+  id: string;
   name: string;
-  imageURL?: string;
-  time: string;
-  text: string;
+  email: string;
+  image: string | null;
+  role: Role;
 }
 
-export interface ApiResponse<T> {
-  data: T;
-  success?: boolean;
-  message?: string;
-  results?: T;
+/** Shape the Express API sends for every error. */
+export interface ApiErrorBody {
+  error: { code: string; message: string; details?: unknown };
 }
 
-export type FormValues = Record<string, string>;
+export interface Paginated<T> {
+  data: T[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+export interface ManagedUser {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: string;
+}
