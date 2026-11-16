@@ -1,6 +1,6 @@
 // app/ideas/[id]/page.tsx
-import type { Metadata } from 'next';
-import IdeaDetailPage from "@/Component/IdeaDetails";
+import type { Metadata } from "next";
+import IdeaDetailPage from "@/components/IdeaDetails";
 
 interface PageProps {
   params: Promise<{
@@ -8,7 +8,9 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
 
   try {
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       `${process.env.NEXT_PUBLIC_SERVER_URL}/idea/${id}`,
       {
         next: { revalidate: 3600 },
-      }
+      },
     );
 
     if (!res.ok) throw new Error("Failed to fetch idea");
@@ -40,7 +42,5 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function Page({ params }: PageProps) {
-
-  
-  return <IdeaDetailPage  />;
+  return <IdeaDetailPage />;
 }
