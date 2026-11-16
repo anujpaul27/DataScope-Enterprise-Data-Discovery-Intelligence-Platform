@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import type { FormValues } from "@/types";
 import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
@@ -30,7 +29,16 @@ export default function LoginPage() {
     if (isLoading) return;
 
     const formData = new FormData(e.currentTarget);
-    const { email, password } = Object.fromEntries(formData.entries()) as FormValues;
+    const emailEntry = formData.get("email");
+    const passwordEntry = formData.get("password");
+
+    if (typeof emailEntry !== "string" || typeof passwordEntry !== "string") {
+      toast.error("Email and password are required.");
+      return;
+    }
+
+    const email = emailEntry;
+    const password = passwordEntry;
 
     // Validate Password
     const error = validatePassword(password);

@@ -39,3 +39,11 @@ export interface ManagedUser {
   isActive: boolean;
   createdAt: string;
 }
+
+export interface FormValues {
+  email: string,
+  password: string,
+  name: string,
+  image: any,
+  user: any 
+}

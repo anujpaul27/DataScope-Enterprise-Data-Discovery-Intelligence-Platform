@@ -24,7 +24,7 @@ export default function RegisterUser() {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const UserObj = Object.fromEntries(formData.entries()) as FormValues;
+    const UserObj = Object.fromEntries(formData.entries()) as any;
 
     setLoading(true);
 

@@ -4,9 +4,18 @@ import { apiBaseQuery, isRetryable, type ApiQueryError } from "@/lib/api/baseQue
 // Slow network / flaky API: GET requests are retried up to 2 more times (with growing
 // pauses) but ONLY for network errors and 5xx. Mutations switch retry off per endpoint
 // (extraOptions: { maxRetries: 0 }) because repeating a POST could create things twice.
-const baseQueryWithRetry = retry(apiBaseQuery, {
+const retryableBaseQuery = async (...args: Parameters<typeof apiBaseQuery>) => {
+  const result = await apiBaseQuery(...args);
+
+  if ("error" in result && !isRetryable(result.error as ApiQueryError)) {
+    retry.fail(result.error, result.meta);
+  }
+
+  return result;
+};
+
+const baseQueryWithRetry = retry(retryableBaseQuery, {
   maxRetries: 2,
-  retryCondition: (error) => isRetryable(error as ApiQueryError),
 });
 
 // Every endpoint file adds its endpoints to THIS one api with injectEndpoints(),
