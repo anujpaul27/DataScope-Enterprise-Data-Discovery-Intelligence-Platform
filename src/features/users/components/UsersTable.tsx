@@ -1,58 +1,56 @@
 "use client";
 
 import { TriangleAlert, Users } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import EmptyState from "@/components/ui/EmptyState";
-import { ApiError, apiFetch } from "@/lib/api/client";
-import { ROLES, ROLE_LABELS, isRole, type ManagedUser, type Paginated, type Role } from "@/types";
-import { useDebouncedValue } from "../useDebouncedValue";
+import Pagination from "@/components/ui/Pagination";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { getErrorMessage } from "@/lib/api/errors";
+import { ROLES, ROLE_LABELS, isRole, type Role } from "@/types";
+import {
+  useListUsersQuery,
+  useUpdateUserRoleMutation,
+  useUpdateUserStatusMutation,
+} from "../api/usersApi";
 
 const PAGE_SIZE = 10;
 
-// NOTE: plain useEffect + fetch on purpose. In Phase 4 this whole file's data
-// logic is replaced by an RTK Query hook (caching, deduplication, invalidation).
+// Phase 3 used useEffect + fetch here. Phase 4 replaced all of that with RTK Query:
+// caching, request de-duplication, cancelling stale requests and refreshing after
+// a change (tag invalidation) are now done by the library, not by hand.
 export default function UsersTable({ currentUserId }: { currentUserId: string }) {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<Role | "">("");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search, 300);
 
-  const [result, setResult] = useState<Paginated<ManagedUser> | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isFetching, error, refetch } = useListUsersQuery({
+    page,
+    pageSize: PAGE_SIZE,
+    q: debouncedSearch.trim() || undefined,
+    role: role || undefined,
+  });
+  const [updateRole] = useUpdateUserRoleMutation();
+  const [updateStatus] = useUpdateUserStatusMutation();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
-    if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
-    if (role) params.set("role", role);
+  async function changeRole(id: string, name: string, next: Role) {
     try {
-      setResult(await apiFetch<Paginated<ManagedUser>>(`/api/users?${params}`));
+      await updateRole({ id, role: next }).unwrap();
+      toast.success(`${name} is now ${next}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Cannot reach the API.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, debouncedSearch, role]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
-
-  async function patch(user: ManagedUser, path: "role" | "status", body: object, okMessage: string) {
-    try {
-      await apiFetch(`/api/users/${user.id}/${path}`, { method: "PATCH", body: JSON.stringify(body) });
-      toast.success(okMessage);
-      await load(); // re-read from the server so the table is never out of sync
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Update failed");
+      toast.error(getErrorMessage(err, "Update failed"));
     }
   }
 
-  const totalPages = result ? Math.max(1, Math.ceil(result.total / result.pageSize)) : 1;
+  async function changeStatus(id: string, name: string, isActive: boolean) {
+    try {
+      await updateStatus({ id, isActive }).unwrap();
+      toast.success(isActive ? `${name} activated` : `${name} deactivated`);
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Update failed"));
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -86,13 +84,13 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
         </select>
       </div>
 
-      {error ? (
+      {error && !data ? (
         <EmptyState
           icon={TriangleAlert}
           title="Could not load users"
-          description={error}
+          description={getErrorMessage(error)}
           action={
-            <button type="button" className="btn btn-primary btn-sm" onClick={() => void load()}>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void refetch()}>
               Retry
             </button>
           }
@@ -109,7 +107,7 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
               </tr>
             </thead>
             <tbody>
-              {loading && !result
+              {isLoading
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       <td colSpan={4}>
@@ -117,10 +115,10 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
                       </td>
                     </tr>
                   ))
-                : result?.data.map((u) => {
+                : data?.data.map((u) => {
                     const isMe = u.id === currentUserId;
                     return (
-                      <tr key={u.id} className={loading ? "opacity-60" : undefined}>
+                      <tr key={u.id} className={isFetching ? "opacity-60" : undefined}>
                         <td>
                           <div className="font-medium">
                             {u.name} {isMe && <span className="badge badge-ghost badge-sm ml-1">You</span>}
@@ -133,9 +131,9 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
                             value={u.role}
                             disabled={isMe}
                             aria-label={`Role for ${u.name}`}
-                            onChange={(e) =>
-                              void patch(u, "role", { role: e.target.value }, `${u.name} is now ${e.target.value}`)
-                            }
+                            onChange={(e) => {
+                              if (isRole(e.target.value)) void changeRole(u.id, u.name, e.target.value);
+                            }}
                           >
                             {ROLES.map((r) => (
                               <option key={r} value={r}>
@@ -151,14 +149,7 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
                             checked={u.isActive}
                             disabled={isMe}
                             aria-label={`Active status for ${u.name}`}
-                            onChange={(e) =>
-                              void patch(
-                                u,
-                                "status",
-                                { isActive: e.target.checked },
-                                e.target.checked ? `${u.name} activated` : `${u.name} deactivated`,
-                              )
-                            }
+                            onChange={(e) => void changeStatus(u.id, u.name, e.target.checked)}
                           />
                         </td>
                         <td className="tabular text-sm text-base-content/70">
@@ -169,7 +160,7 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
                   })}
             </tbody>
           </table>
-          {result && result.data.length === 0 && (
+          {data && data.data.length === 0 && (
             <div className="p-6">
               <EmptyState icon={Users} title="No users found" description="Try a different search or role filter." />
             </div>
@@ -177,27 +168,7 @@ export default function UsersTable({ currentUserId }: { currentUserId: string })
         </div>
       )}
 
-      {result && result.total > 0 && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-base-content/60">{result.total} users</span>
-          <div className="join">
-            <button type="button" className="btn btn-sm join-item" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Prev
-            </button>
-            <span className="btn btn-sm join-item pointer-events-none">
-              {page} / {totalPages}
-            </span>
-            <button
-              type="button"
-              className="btn btn-sm join-item"
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+      {data && <Pagination page={page} pageSize={data.pageSize} total={data.total} noun="users" onPageChange={setPage} />}
     </div>
   );
 }
