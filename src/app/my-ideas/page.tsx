@@ -31,7 +31,7 @@ export default function MyIdeasPage() {
 
   // fetch ideas
   const { data, error, isLoading, mutate } = useSWR(
-    id ? `${process.env.NEXT_PUBLIC_SERVER_URL}/my-ideas/${id}` : null,
+    id ? `${process.env.NEXT_SERVER}/my-ideas/${id}` : null,
     fetcher,
   );
 
@@ -39,12 +39,9 @@ export default function MyIdeasPage() {
   const handleDelete = async (ideaId: string) => {
     try {
       // example delete api
-      await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/idea-delete/${ideaId}`,
-        {
-          method: "DELETE",
-        },
-      );
+      await fetch(`${process.env.NEXT_SERVER}/idea-delete/${ideaId}`, {
+        method: "DELETE",
+      });
 
       mutate();
       setIdeaToDelete(null);

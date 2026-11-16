@@ -48,7 +48,7 @@ export default function IdeaDetailPage() {
 
   // fetch all comment
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comment/${id}`)
+    fetch(`${process.env.NEXT_SERVER}/comment/${id}`)
       .then((res) => res.json())
       .then((data) => setComments(data.data));
   }, []);
@@ -71,16 +71,13 @@ export default function IdeaDetailPage() {
     };
 
     // call api save to the DB
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/comment`,
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(comment),
+    const response = await fetch(`${process.env.NEXT_SERVER}/comment`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
       },
-    );
+      body: JSON.stringify(comment),
+    });
 
     if (response.ok) {
       toast.success("Comment Added Successful.");
@@ -94,20 +91,20 @@ export default function IdeaDetailPage() {
 
   const handleDelete = async (commentId: any) => {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/comment-delete/${commentId}`,
+      `${process.env.NEXT_SERVER}/comment-delete/${commentId}`,
       {
         method: "DELETE",
       },
     );
     console.log(response);
 
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comment/${id}`)
+    fetch(`${process.env.NEXT_SERVER}/comment/${id}`)
       .then((res) => res.json())
       .then((data) => setComments(data.data));
   };
 
   const { data, error, isLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/idea/${id}`,
+    `${process.env.NEXT_SERVER}/idea/${id}`,
     fetcher,
   );
 

@@ -46,7 +46,7 @@ export default function MyInteractionsPage() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comments-userID/${id}`)
+    fetch(`${process.env.NEXT_SERVER}/comments-userID/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setComments(data.data || []);
@@ -57,12 +57,9 @@ export default function MyInteractionsPage() {
   // delete comment
   const handleDelete = async (commentId: string) => {
     try {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/comment-delete/${commentId}`,
-        {
-          method: "DELETE",
-        },
-      );
+      await fetch(`${process.env.NEXT_SERVER}/comment-delete/${commentId}`, {
+        method: "DELETE",
+      });
 
       const remaining = comments.filter((comment) => comment._id !== commentId);
 

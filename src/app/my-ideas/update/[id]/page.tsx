@@ -49,7 +49,7 @@ export default function IdeaDetailPage() {
   const id = params?.id;
 
   const { data, error, isLoading } = useSWR(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/idea/${id}`,
+    `${process.env.NEXT_SERVER}/idea/${id}`,
     fetcher,
   );
 
@@ -65,16 +65,13 @@ export default function IdeaDetailPage() {
     const UserObj: IdeaFormData = Object.fromEntries(formData.entries());
     UserObj.author_id = data?.user?.id;
 
-    const post = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/idea-update/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(UserObj),
+    const post = await fetch(`${process.env.NEXT_SERVER}/idea-update/${id}`, {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
       },
-    );
+      body: JSON.stringify(UserObj),
+    });
 
     if (post.ok) {
       toast.success("Your Idea Update successful.");

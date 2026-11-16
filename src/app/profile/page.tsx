@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
@@ -67,14 +67,17 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/update-profile`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          id: session.user.id,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_SERVER}/update-profile`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name.trim(),
+            id: session.user.id,
+          }),
+        },
+      );
 
       const result = await response.json();
 
@@ -115,7 +118,9 @@ export default function ProfilePage() {
         <div className="bg-base-100 dark:bg-neutral-900 rounded-3xl shadow-xl p-8 md:p-12">
           <div className="flex flex-col items-center text-center mb-10">
             <h1 className="text-4xl font-bold mb-2">My Profile</h1>
-            <p className="text-base-content/70">Manage your account information</p>
+            <p className="text-base-content/70">
+              Manage your account information
+            </p>
           </div>
 
           {/* Profile Picture */}
@@ -179,7 +184,9 @@ export default function ProfilePage() {
                 disabled
                 className="input input-bordered w-full bg-base-200 cursor-not-allowed"
               />
-              <p className="text-xs text-base-content/60 mt-1">Email cannot be changed</p>
+              <p className="text-xs text-base-content/60 mt-1">
+                Email cannot be changed
+              </p>
             </div>
 
             {/* Action Buttons */}

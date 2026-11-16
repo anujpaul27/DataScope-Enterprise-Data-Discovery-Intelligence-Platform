@@ -31,18 +31,18 @@ interface UserSession {
 }
 
 interface IdeaFormData {
-  [key: string]:string | FormDataEntryValue | undefined;
-  category?: string ;
-  detailedDescription?: string ;
-  estimatedBudget?: string ;
-  imageUrl?: string ;
-  problemStatement?: string ;
-  proposedSolution?: string ;
-  shortDescription?: string ;
-  tags?: string ;
-  targetAudience?: string ;
-  title?: string ;
-  author_id?:string ;
+  [key: string]: string | FormDataEntryValue | undefined;
+  category?: string;
+  detailedDescription?: string;
+  estimatedBudget?: string;
+  imageUrl?: string;
+  problemStatement?: string;
+  proposedSolution?: string;
+  shortDescription?: string;
+  tags?: string;
+  targetAudience?: string;
+  title?: string;
+  author_id?: string;
   status?: string;
 }
 
@@ -60,26 +60,25 @@ export default function AddIdeaPage() {
     setIsSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
-    const UserObj:IdeaFormData = Object.fromEntries(formData.entries());
+    const UserObj: IdeaFormData = Object.fromEntries(formData.entries());
 
     // Add author_id from session
     if (data?.user?.id) {
       UserObj.author_id = data.user.id;
-      UserObj.status = 'unactive'
+      UserObj.status = "unactive";
     }
 
-    const post = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/create-idea`,{
-      method: 'POST',
-      headers : {
-        'content-type' : 'application/json',
+    const post = await fetch(`${process.env.NEXT_SERVER}/create-idea`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
       },
-      body: JSON.stringify(UserObj)
-    })
+      body: JSON.stringify(UserObj),
+    });
 
-    if (post.ok)
-    {
-      toast.success('Your Idea add successful.')
-      router.push('/ideas')
+    if (post.ok) {
+      toast.success("Your Idea add successful.");
+      router.push("/ideas");
     }
     setIsSubmitting(false);
   };

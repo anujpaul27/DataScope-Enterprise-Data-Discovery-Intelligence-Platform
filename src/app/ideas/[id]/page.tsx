@@ -14,12 +14,9 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/idea/${id}`,
-      {
-        next: { revalidate: 3600 },
-      },
-    );
+    const res = await fetch(`${process.env.NEXT_SERVER}/idea/${id}`, {
+      next: { revalidate: 3600 },
+    });
 
     if (!res.ok) throw new Error("Failed to fetch idea");
 

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Button, Card, Form, Surface, TextArea } from "@heroui/react";
 import { useParams, useRouter } from "next/navigation";
@@ -24,8 +24,10 @@ const UpdateComment = () => {
       if (!commentId) return;
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comments/${commentId}`);
-        
+        const res = await fetch(
+          `${process.env.NEXT_SERVER}/comments/${commentId}`,
+        );
+
         if (!res.ok) throw new Error("Failed to fetch comment");
 
         const data = await res.json();
@@ -52,19 +54,22 @@ const UpdateComment = () => {
         text: formData.get("comment") as string,
       };
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/comments/${commentId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.NEXT_SERVER}/comments/${commentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newComment),
         },
-        body: JSON.stringify(newComment),
-      });
+      );
 
       const result = await response.json();
 
       if (response.ok) {
         // toast.success("Comment updated successfully!"); // Uncomment if using toast
-        router.push(`/ideas/${result?.ideaId || ''}`); // Adjust redirect as needed
+        router.push(`/ideas/${result?.ideaId || ""}`); // Adjust redirect as needed
       } else {
         alert(result.message || "Failed to update comment");
       }
@@ -77,7 +82,11 @@ const UpdateComment = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-96">Loading comment...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-96">
+        Loading comment...
+      </div>
+    );
   }
 
   return (
@@ -100,23 +109,16 @@ const UpdateComment = () => {
               placeholder="Write your comment here..."
               variant="secondary"
               required
-              name="comment"           // Fixed name (was "commnet")
+              name="comment" // Fixed name (was "commnet")
               defaultValue={comment}
             />
           </Surface>
 
           <div className="flex items-center justify-end gap-3 w-full pt-2">
-            <Button 
-              type="button" 
-              onPress={() => router.back()}
-            >
+            <Button type="button" onPress={() => router.back()}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-            >
-              Update Comment
-            </Button>
+            <Button type="submit">Update Comment</Button>
           </div>
         </Form>
       </Card>

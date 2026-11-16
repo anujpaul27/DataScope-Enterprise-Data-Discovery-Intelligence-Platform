@@ -24,14 +24,11 @@ const CodeReviewHero = () => {
     setReview("");
 
     // Simulate API call
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/code-review`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      },
-    );
+    const res = await fetch(`${process.env.NEXT_SERVER}/code-review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
     const result = await res.json();
     console.log(result);
 
@@ -149,9 +146,7 @@ const handleSubmit = async () => {
             {/* Right: Review Output */}
             <div className="flex-[6] min-w-0">
               <div className="card bg-base-100 shadow-2xl h-[820px] border border-base-200 overflow-hidden">
-
                 <div className="card-body p-6 flex flex-col h-full">
-                  
                   {/* Header */}
                   <div className="flex justify-between items-center mb-6 shrink-0">
                     <div className="flex items-center gap-3">
@@ -170,9 +165,9 @@ const handleSubmit = async () => {
                       </button>
                     )}
                   </div>
-                  
+
                   {/* Scrollable Review */}
-                   <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
                     {!review && !isLoading && (
                       <div className="h-full flex flex-col items-center justify-center text-center py-20 opacity-75">
                         <div className="text-[120px] mb-6">🤖</div>

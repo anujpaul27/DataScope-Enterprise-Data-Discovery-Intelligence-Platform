@@ -48,10 +48,10 @@ export default function IdeaList() {
     const fetchIdeas = async () => {
       setLoading(true);
 
-      let url = `${process.env.NEXT_PUBLIC_SERVER_URL}/read-idea-all`;
+      let url = `${process.env.NEXT_SERVER}/read-idea-all`;
 
       if (debouncedQuery) {
-        url = `${process.env.NEXT_PUBLIC_SERVER_URL}/search?q=${encodeURIComponent(debouncedQuery)}`;
+        url = `${process.env.NEXT_SERVER}/search?q=${encodeURIComponent(debouncedQuery)}`;
       }
 
       try {

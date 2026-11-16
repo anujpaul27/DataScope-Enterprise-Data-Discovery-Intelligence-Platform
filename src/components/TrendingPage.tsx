@@ -8,7 +8,6 @@ import { TrendingUp, Heart, MessageCircle, Eye } from "lucide-react";
 import useSWR from "swr";
 import Loader from "./loading";
 
-
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -34,14 +33,17 @@ const cardVariants = {
   },
 };
 
-const fetcher = (url:string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TrendingIdeasPage() {
-  const { data, error, isLoading } = useSWR(`${process.env.NEXT_PUBLIC_SERVER_URL}/read-idea`, fetcher);
+  const { data, error, isLoading } = useSWR(
+    `${process.env.NEXT_SERVER}/read-idea`,
+    fetcher,
+  );
 
   if (error) return <div>Failed to load</div>;
   if (isLoading) return <Loader></Loader>;
-  const trendingIdeas=(data.data);
+  const trendingIdeas = data.data;
 
   return (
     <section className="py-16 bg-base-200 ">
@@ -68,7 +70,7 @@ export default function TrendingIdeasPage() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {trendingIdeas.map((idea:any) => (
+          {trendingIdeas.map((idea: any) => (
             <motion.div
               key={idea._id}
               whileHover="hover"
@@ -97,8 +99,6 @@ export default function TrendingIdeasPage() {
                 <p className="text-base-content/70 text-sm line-clamp-3 mb-5">
                   {idea.shortDescription}
                 </p>
-
-                
 
                 {/* View Details Button */}
                 <Link
