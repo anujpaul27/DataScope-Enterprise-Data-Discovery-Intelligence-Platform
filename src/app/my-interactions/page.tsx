@@ -4,19 +4,19 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Edit3, Trash2, MessageCircle, Save, X } from "lucide-react";
 import Image from "next/image";
-import Loader from "@/Component/loading";
+import Loader from "@/components/loading";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { ParamValue } from "next/dist/server/request/params";
 
 interface comment {
-    _id: string ;
-    userID: string | undefined;
-    postID: ParamValue;
-    name: string | undefined;
-    imageURL: string | null | undefined;
-    time: string;
-    text: string;
+  _id: string;
+  userID: string | undefined;
+  postID: ParamValue;
+  name: string | undefined;
+  imageURL: string | null | undefined;
+  time: string;
+  text: string;
 }
 type strNull = string | null;
 
@@ -37,8 +37,8 @@ export default function MyInteractionsPage() {
 
   // session
   const { data: session, isPending } = authClient.useSession() as {
-    data: UserSession | undefined ;
-    isPending: boolean
+    data: UserSession | undefined;
+    isPending: boolean;
   };
   const id = session?.user?.id;
 
@@ -55,7 +55,7 @@ export default function MyInteractionsPage() {
   }, [id]);
 
   // delete comment
-  const handleDelete = async (commentId:string) => {
+  const handleDelete = async (commentId: string) => {
     try {
       await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/comment-delete/${commentId}`,
@@ -64,9 +64,7 @@ export default function MyInteractionsPage() {
         },
       );
 
-      const remaining = comments.filter(
-        (comment) => comment._id !== commentId,
-      );
+      const remaining = comments.filter((comment) => comment._id !== commentId);
 
       setComments(remaining);
       setDeleteId(null);
@@ -82,9 +80,7 @@ export default function MyInteractionsPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-bold">
-            My Interactions
-          </h1>
+          <h1 className="text-3xl lg:text-4xl font-bold">My Interactions</h1>
 
           <p className="text-base-content/70 mt-2 text-sm lg:text-base">
             Manage all your comments and interactions
@@ -96,9 +92,7 @@ export default function MyInteractionsPage() {
           <div className="bg-base-100 rounded-3xl py-20 text-center shadow">
             <div className="text-6xl mb-4">💬</div>
 
-            <h2 className="text-2xl font-bold mb-2">
-              No interactions yet
-            </h2>
+            <h2 className="text-2xl font-bold mb-2">No interactions yet</h2>
 
             <p className="text-base-content/60">
               Your comments will appear here
@@ -131,9 +125,7 @@ export default function MyInteractionsPage() {
                     <div className="flex-1">
                       <div className="flex   sm:items-center justify-between gap-2">
                         <div>
-                          <h2 className="font-bold text-lg">
-                            {comment?.name}
-                          </h2>
+                          <h2 className="font-bold text-lg">{comment?.name}</h2>
 
                           <p className="text-xs text-base-content/60">
                             {comment?.time}
@@ -160,15 +152,11 @@ export default function MyInteractionsPage() {
 
                       {/* Text */}
                       {editingId === comment._id ? (
-                        <form
-                          className="mt-4"
-                        >
+                        <form className="mt-4">
                           <textarea
                             name="comment"
                             value={commentText}
-                            onChange={(e) =>
-                              setCommentText(e.target.value)
-                            }
+                            onChange={(e) => setCommentText(e.target.value)}
                             className="textarea textarea-bordered w-full h-28"
                           />
 
@@ -224,9 +212,7 @@ export default function MyInteractionsPage() {
               exit={{ scale: 0.9, opacity: 0 }}
               className="bg-base-100 rounded-3xl p-6 max-w-md w-full"
             >
-              <h3 className="text-2xl font-bold mb-2">
-                Delete Comment?
-              </h3>
+              <h3 className="text-2xl font-bold mb-2">Delete Comment?</h3>
 
               <p className="text-base-content/70">
                 This action cannot be undone.

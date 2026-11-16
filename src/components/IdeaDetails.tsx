@@ -12,7 +12,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import Loader from "@/Component/loading";
+import Loader from "@/components/loading";
 import useSWR from "swr";
 import { authClient } from "@/lib/auth-client";
 import { format } from "date-fns";
@@ -21,17 +21,16 @@ import { ParamValue } from "next/dist/server/request/params";
 
 // Type interfaces
 interface comment {
-    _id: string | undefined  ;
-    userID: string | undefined;
-    postID: ParamValue;
-    name: string | undefined;
-    imageURL: string | null | undefined;
-    time: string;
-    text: string;
+  _id: string | undefined;
+  userID: string | undefined;
+  postID: ParamValue;
+  name: string | undefined;
+  imageURL: string | null | undefined;
+  time: string;
+  text: string;
 }
 
-
-const fetcher = (url:any) => fetch(url).then((res) => res.json());
+const fetcher = (url: any) => fetch(url).then((res) => res.json());
 
 export default function IdeaDetailPage() {
   const [newComment, setNewComment] = useState<string>("");
@@ -93,7 +92,7 @@ export default function IdeaDetailPage() {
     setLoadingComment(false);
   };
 
-  const handleDelete = async (commentId:any) => {
+  const handleDelete = async (commentId: any) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/comment-delete/${commentId}`,
       {
@@ -211,7 +210,7 @@ export default function IdeaDetailPage() {
               <div className="h-px bg-base-300 dark:bg-neutral-700 my-8" />
 
               <div className="flex flex-wrap gap-2">
-                {idea.tags.map((tag:any, i:any) => (
+                {idea.tags.map((tag: any, i: any) => (
                   <div key={i} className="badge badge-neutral badge-outline">
                     #{tag}
                   </div>

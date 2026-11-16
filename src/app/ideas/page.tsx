@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { TrendingUp, Search, X } from "lucide-react";
-import Loader from "@/Component/loading";
+import Loader from "@/components/loading";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 const containerVariants = {

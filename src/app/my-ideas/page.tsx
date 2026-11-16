@@ -6,10 +6,10 @@ import { Edit3, Trash2, Plus, Calendar, Eye } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import useSWR from "swr";
-import Loader from "@/Component/loading";
+import Loader from "@/components/loading";
 import { authClient } from "@/lib/auth-client";
 
-const fetcher = (url:any) => fetch(url).then((res) => res.json());
+const fetcher = (url: any) => fetch(url).then((res) => res.json());
 
 // Type Interface
 interface UserSession {
@@ -19,7 +19,7 @@ interface UserSession {
 }
 
 export default function MyIdeasPage() {
-  const [ideaToDelete, setIdeaToDelete] = useState<string | null>(null);  
+  const [ideaToDelete, setIdeaToDelete] = useState<string | null>(null);
 
   // Get session
   const { data: session, isPending } = authClient.useSession() as {
@@ -36,7 +36,7 @@ export default function MyIdeasPage() {
   );
 
   // delete idea
-  const handleDelete = async (ideaId:string) => {
+  const handleDelete = async (ideaId: string) => {
     try {
       // example delete api
       await fetch(
@@ -113,7 +113,7 @@ export default function MyIdeasPage() {
 
                 <tbody>
                   <AnimatePresence>
-                    {ideas.map((idea:any, index:number) => (
+                    {ideas.map((idea: any, index: number) => (
                       <motion.tr
                         key={idea._id}
                         initial={{ opacity: 0, y: 20 }}
@@ -188,7 +188,7 @@ export default function MyIdeasPage() {
             {/* Mobile Card Layout */}
             <div className="md:hidden p-3 space-y-4">
               <AnimatePresence>
-                {ideas.map((idea:any, index:number) => (
+                {ideas.map((idea: any, index: number) => (
                   <motion.div
                     key={idea._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -214,8 +214,6 @@ export default function MyIdeasPage() {
                           <h2 className="font-semibold text-sm line-clamp-2">
                             {idea?.title}
                           </h2>
-
-                          
                         </div>
 
                         <p className="text-xs text-base-content/60 mt-2 line-clamp-3">

@@ -1,16 +1,29 @@
-import RegisterUser from '@/Component/Register';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import AuthShell from "@/features/auth/components/AuthShell";
+import RegisterForm from "@/features/auth/components/RegisterForm";
+import { getServerSession } from "@/lib/session";
 
-export const metadata = {
-  title: 'Registration - ThinkShare',
-  description: 'This is the best idea share platform '
-}
+export const metadata: Metadata = { title: "Create account" };
 
-const page = () => {
+export default async function RegisterPage() {
+  if (await getServerSession()) redirect("/dashboard");
+
   return (
-    <div>
-      <RegisterUser/>
-    </div>
+    <AuthShell
+      title="Create your account"
+      subtitle="New accounts start as Viewers. An administrator can change your role."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/login" className="link link-primary">
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <RegisterForm />
+    </AuthShell>
   );
-};
-
-export default page;
+}
