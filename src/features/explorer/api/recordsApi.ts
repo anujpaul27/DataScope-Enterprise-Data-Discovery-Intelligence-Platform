@@ -1,6 +1,12 @@
 import { baseApi } from "@/store/api/baseApi";
 import { toQueryString } from "@/lib/api/query-string";
-import type { ListRecordsArgs, RecordRow, RecordsPage } from "../types";
+import type {
+  HistoryEntry,
+  ListRecordsArgs,
+  RecordRow,
+  RecordsPage,
+  RelatedRecord,
+} from "../types";
 
 export const recordsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -20,8 +26,31 @@ export const recordsApi = baseApi.injectEndpoints({
         { type: "Record", id: `${datasetId}:${recordId}` },
       ],
     }),
+
+    getRelatedRecords: build.query<RelatedRecord[], { datasetId: string; recordId: number }>({
+      query: ({ datasetId, recordId }) => `/api/datasets/${datasetId}/records/${recordId}/related`,
+      transformResponse: (res: { related: RelatedRecord[] }) => res.related,
+      providesTags: (_result, _error, { datasetId, recordId }) => [
+        { type: "Record", id: `${datasetId}:${recordId}:related` },
+      ],
+      keepUnusedDataFor: 60,
+    }),
+
+    getRecordHistory: build.query<HistoryEntry[], { datasetId: string; recordId: number }>({
+      query: ({ datasetId, recordId }) => `/api/datasets/${datasetId}/records/${recordId}/history`,
+      transformResponse: (res: { history: HistoryEntry[] }) => res.history,
+      providesTags: (_result, _error, { datasetId, recordId }) => [
+        { type: "Record", id: `${datasetId}:${recordId}:history` },
+      ],
+      keepUnusedDataFor: 60,
+    }),
   }),
 });
 
-export const { useListRecordsQuery, useGetRecordQuery } = recordsApi;
+export const {
+  useListRecordsQuery,
+  useGetRecordQuery,
+  useGetRelatedRecordsQuery,
+  useGetRecordHistoryQuery,
+} = recordsApi;
 export const useRecordsPrefetch = recordsApi.usePrefetch;

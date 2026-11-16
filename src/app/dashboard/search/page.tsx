@@ -1,9 +1,24 @@
 import type { Metadata } from "next";
-import { Search } from "lucide-react";
-import ComingSoon from "@/components/ui/ComingSoon";
+import { Suspense } from "react";
+import PageHeader from "@/components/ui/PageHeader";
+import DataExplorer from "@/features/explorer/components/DataExplorer";
+import { requireRole } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Advanced Search" };
 
-export default function Page() {
-  return <ComingSoon title="Advanced Search" description="Build searches with multiple conditions." icon={Search} phase="Phase 6 (Advanced Search)" />;
+export default async function AdvancedSearchPage() {
+  // Viewers browse via Explorer with basic search; multi-condition builder is for analysts+.
+  await requireRole("admin", "analyst");
+
+  return (
+    <>
+      <PageHeader
+        title="Advanced Search"
+        description="Build multi-condition queries: exact/partial match, numeric and date ranges, combined filters."
+      />
+      <Suspense fallback={<div className="skeleton h-64" />}>
+        <DataExplorer filtersAlwaysOpen />
+      </Suspense>
+    </>
+  );
 }

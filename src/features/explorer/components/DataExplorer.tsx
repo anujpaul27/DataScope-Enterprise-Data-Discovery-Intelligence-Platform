@@ -13,8 +13,8 @@ import { useExplorerUrlState } from "../hooks/useExplorerUrlState";
 import ExplorerWorkspace from "./ExplorerWorkspace";
 import TableSkeleton from "./TableSkeleton";
 
-// The Explorer page: dataset picker + the workspace of the chosen dataset.
-export default function DataExplorer() {
+// Dataset picker + workspace. Also used by Advanced Search with filtersAlwaysOpen.
+export default function DataExplorer({ filtersAlwaysOpen = false }: { filtersAlwaysOpen?: boolean }) {
   const url = useExplorerUrlState();
   const dispatch = useAppDispatch();
 
@@ -95,11 +95,24 @@ export default function DataExplorer() {
       />
     );
   } else {
-    body = <ExplorerWorkspace key={detail.data.id} dataset={detail.data} url={url} />;
+    body = (
+      <ExplorerWorkspace
+        key={detail.data.id}
+        dataset={detail.data}
+        url={url}
+        filtersAlwaysOpen={filtersAlwaysOpen}
+      />
+    );
   }
 
   return (
     <div className="space-y-4">
+      {filtersAlwaysOpen && (
+        <p className="rounded-box border border-base-300 bg-base-200/60 px-3 py-2 text-sm text-base-content/70">
+          Combine a global search with field conditions (status, country, revenue ranges, last N days). Every
+          condition runs on the server and is AND-ed together. Share the URL to keep the same query.
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <label className="flex items-center gap-2 text-sm">
           <span className="text-base-content/60">Dataset</span>

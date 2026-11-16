@@ -12,11 +12,13 @@ import { columnVisibilityChanged, tableDensityChanged } from "@/store/slices/uiP
 import { useListRecordsQuery, useRecordsPrefetch } from "../api/recordsApi";
 import { useDelayedFlag } from "../hooks/useDelayedFlag";
 import type { useExplorerUrlState } from "../hooks/useExplorerUrlState";
+import { sanitizeFilters, serializeFilters } from "../lib/filters";
 import { nextSort, serializeSort } from "../lib/sort";
 import type { ListRecordsArgs, RecordRow } from "../types";
 import ColumnPicker from "./ColumnPicker";
 import DataTable, { type DataTableColumn } from "./DataTable";
 import ExplorerPagination from "./ExplorerPagination";
+import FilterBuilder from "./FilterBuilder";
 import RecordDrawer from "./RecordDrawer";
 import TableSkeleton from "./TableSkeleton";
 
@@ -25,8 +27,17 @@ type UrlState = ReturnType<typeof useExplorerUrlState>;
 // Everything that depends on ONE dataset. The parent renders it with key={dataset.id},
 // so switching dataset gives a fresh component: selection, open record and search box reset
 // themselves without any "reset" effect.
-export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDetail; url: UrlState }) {
-  const { page, pageSize, q, sort, setPage, setPageSize, setSort, setQuery, clearAll } = url;
+export default function ExplorerWorkspace({
+  dataset,
+  url,
+  filtersAlwaysOpen = false,
+}: {
+  dataset: DatasetDetail;
+  url: UrlState;
+  /** Advanced Search keeps the filter panel open by default. */
+  filtersAlwaysOpen?: boolean;
+}) {
+  const { page, pageSize, q, sort, filters, setPage, setPageSize, setSort, setQuery, setFilters, clearAll } = url;
   const dispatch = useAppDispatch();
   const density = useAppSelector((s) => s.uiPreference.tableDensity);
   const savedColumns = useAppSelector((s) => s.uiPreference.columnVisibility[dataset.id]);
@@ -71,6 +82,11 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
     () => sort.filter((r) => dataset.fields.some((f) => f.key === r.field && f.isSortable)),
     [sort, dataset.fields],
   );
+  const validFilters = useMemo(
+    () => sanitizeFilters(filters, dataset.fields),
+    [filters, dataset.fields],
+  );
+  const filtersParam = useMemo(() => serializeFilters(validFilters) || undefined, [validFilters]);
 
   // ---- server state: ONE RTK Query call, arguments = everything the user can change
   const args = useMemo<ListRecordsArgs>(
@@ -80,9 +96,10 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
       pageSize,
       q: q || undefined,
       sort: serializeSort(validSort) || undefined,
+      filters: filtersParam,
       columns: visibleKeys.join(","),
     }),
-    [dataset.id, page, pageSize, q, validSort, visibleKeys],
+    [dataset.id, page, pageSize, q, validSort, filtersParam, visibleKeys],
   );
   const records = useListRecordsQuery(args);
 
@@ -123,9 +140,15 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
   }, []);
   const onOpenRow = useCallback((row: RecordRow) => setOpenId(row.id), []);
   const closeDrawer = useCallback(() => setOpenId(null), []);
+  const onOpenRelated = useCallback(
+    (related: { datasetId: string; recordId: number }) => {
+      if (related.datasetId === dataset.id) setOpenId(related.recordId);
+    },
+    [dataset.id],
+  );
 
   const labelOf = (key: string) => dataset.fields.find((f) => f.key === key)?.label ?? key;
-  const hasSearchOrSort = Boolean(q || validSort.length);
+  const hasActiveQuery = Boolean(q || validSort.length || validFilters.length);
 
   function clearSearch() {
     setInput("");
@@ -181,8 +204,15 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
         </div>
       </div>
 
+      <FilterBuilder
+        fields={dataset.fields}
+        applied={validFilters}
+        onApply={setFilters}
+        defaultOpen={filtersAlwaysOpen}
+      />
+
       {/* active sort + selection summary */}
-      {(validSort.length > 0 || selected.size > 0) && (
+      {(validSort.length > 0 || selected.size > 0 || hasActiveQuery) && (
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {validSort.map((r, i) => (
             <span key={r.field} className="badge badge-outline gap-1">
@@ -196,9 +226,16 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
               </button>
             </span>
           ))}
-          {hasSearchOrSort && (
-            <button type="button" className="btn btn-ghost btn-xs" onClick={() => { setInput(""); clearAll(); }}>
-              Clear search & sort
+          {hasActiveQuery && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-xs"
+              onClick={() => {
+                setInput("");
+                clearAll();
+              }}
+            >
+              Clear search, filters & sort
             </button>
           )}
           {selected.size > 0 && (
@@ -249,14 +286,21 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
               </button>
             }
           />
-        ) : q ? (
+        ) : q || validFilters.length > 0 ? (
           <EmptyState
             icon={SearchX}
-            title={`No records match "${q}"`}
-            description="Check the spelling or try a shorter search."
+            title={q ? `No records match "${q}"` : "No records match these filters"}
+            description="Try fewer conditions, or clear search and filters."
             action={
-              <button type="button" className="btn btn-sm" onClick={clearSearch}>
-                Clear search
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => {
+                  setInput("");
+                  clearAll();
+                }}
+              >
+                Clear search & filters
               </button>
             }
           />
@@ -295,7 +339,13 @@ export default function ExplorerWorkspace({ dataset, url }: { dataset: DatasetDe
         </>
       )}
 
-      <RecordDrawer datasetId={dataset.id} recordId={openId} fields={dataset.fields} onClose={closeDrawer} />
+      <RecordDrawer
+        datasetId={dataset.id}
+        recordId={openId}
+        fields={dataset.fields}
+        onClose={closeDrawer}
+        onOpenRelated={onOpenRelated}
+      />
     </div>
   );
 }

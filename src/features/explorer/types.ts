@@ -24,6 +24,34 @@ export interface ListRecordsArgs {
   q?: string;
   /** "revenue:desc,name:asc" */
   sort?: string;
+  /** JSON array: [{"field":"country","op":"eq","value":"Germany"}] */
+  filters?: string;
   /** "name,country,revenue": only these columns are sent back */
   columns?: string;
+}
+
+/** GET /api/datasets/:id/records/:recordId/related */
+export interface RelatedRecord {
+  relationType: string;
+  direction: "outgoing" | "incoming";
+  recordId: number;
+  datasetId: string;
+  datasetName: string;
+  datasetSlug: string;
+  preview: Record<string, unknown>;
+}
+
+/** GET /api/datasets/:id/records/:recordId/history */
+export interface HistoryChange {
+  field: string;
+  label: string;
+  from: unknown;
+  to: unknown;
+}
+
+export interface HistoryEntry {
+  id: number;
+  createdAt: string;
+  changedBy: string;
+  changes: HistoryChange[];
 }
