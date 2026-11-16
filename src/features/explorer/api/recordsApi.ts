@@ -1,0 +1,27 @@
+import { baseApi } from "@/store/api/baseApi";
+import { toQueryString } from "@/lib/api/query-string";
+import type { ListRecordsArgs, RecordRow, RecordsPage } from "../types";
+
+export const recordsApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    // One cache entry per (dataset, page, pageSize, search, sort, columns).
+    // Going back to a page you already saw is instant; two components asking for the same
+    // page share ONE request (RTK Query de-duplicates by the serialized arguments).
+    listRecords: build.query<RecordsPage, ListRecordsArgs>({
+      query: ({ datasetId, ...params }) => `/api/datasets/${datasetId}/records${toQueryString(params)}`,
+      providesTags: (_result, _error, { datasetId }) => [{ type: "Records", id: datasetId }],
+      keepUnusedDataFor: 60,
+    }),
+
+    getRecord: build.query<RecordRow, { datasetId: string; recordId: number }>({
+      query: ({ datasetId, recordId }) => `/api/datasets/${datasetId}/records/${recordId}`,
+      transformResponse: (res: { record: RecordRow }) => res.record,
+      providesTags: (_result, _error, { datasetId, recordId }) => [
+        { type: "Record", id: `${datasetId}:${recordId}` },
+      ],
+    }),
+  }),
+});
+
+export const { useListRecordsQuery, useGetRecordQuery } = recordsApi;
+export const useRecordsPrefetch = recordsApi.usePrefetch;
