@@ -9,7 +9,7 @@ export const getServerSession = cache(async () =>
   auth.api.getSession({ headers: await headers() }),
 );
 
-/** For server components / layouts: returns the user or redirects to /login. */
+
 export async function requireUser(): Promise<AppUser> {
   const session = await getServerSession();
   if (!session) redirect("/login");
