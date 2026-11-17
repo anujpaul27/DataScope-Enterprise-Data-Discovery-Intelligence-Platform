@@ -47,3 +47,10 @@ export interface FormValues {
   image: any,
   user: any 
 }
+export interface FormValues2 {
+  email: string,
+  password: string,
+  name: string,
+  image: any,
+  user: any 
+}
