@@ -2,8 +2,7 @@ import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 
-// In `next dev` files are reloaded often; keep ONE pool on globalThis
-// so we do not open a new set of connections on every reload.
+
 const globalForDb = globalThis as unknown as { __dsPool?: Pool };
 
 const pool =
